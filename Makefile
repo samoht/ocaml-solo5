@@ -107,6 +107,7 @@ ocaml/Makefile.config: $(LIBS) $(TOOLCHAIN_FOR_BUILD) | ocaml
 	PATH="$$PWD/$(TOOLDIR_FOR_BUILD):$$PATH" ; \
 	cd ocaml && \
 	  ./configure \
+		CPPFLAGS="-DCAML_RUNTIME_EVENTS_INPROCESS" \
 		--target="$(MAKECONF_TARGET_ARCH)-solo5-ocaml" \
 		--prefix="$(MAKECONF_SYSROOT)" \
 		--disable-shared \
