@@ -1,18 +1,8 @@
-From 3a46bc4e032f9148453d4f44a2c5bfff6e1ad080 Mon Sep 17 00:00:00 2001
-From: Thomas Gazagnaire <thomas@gazagnaire.org>
-Date: Wed, 8 Jul 2026 22:10:46 -0700
-Subject: [PATCH 5/6] Add whole-program dead code elimination for flambda
- (-use-lto)
+From f3ac7a9309948575022dc2a8653062407c8776de Mon Sep 17 00:00:00 2001
+From: t <t@t>
+Date: Thu, 9 Jul 2026 10:28:42 -0700
+Subject: [PATCH] Add whole-program dead code elimination for flambda
 
-Compiling with -lto stores each unit's full flambda code in its .cmx
-(the default when the compiler is configured with --enable-lto); linking
-with -use-lto then concatenates all the units' flambda programs, re-runs
-the middle-end over the whole program and drops everything unreachable
-from the roots. Useful for unikernels, where the whole program is known
-at link time and image size matters.
-
-Ported from EduardoRFS/ocaml 4.10+lto, with a per-unit -lto/-no-lto flag
-(defaulting to --enable-lto) instead of a compiler-wide toggle.
 ---
  asmcomp/asmgen.mli                            |   6 +
  asmcomp/asmlibrarian.ml                       |  22 ++-
@@ -486,7 +476,7 @@ index 39508cec63..65a0099040 100644
  exception Error of error
  
 diff --git a/configure b/configure
-index b159afee80..51acfafe92 100755
+index 0ce6c1a1c2..193f62c106 100755
 --- a/configure
 +++ b/configure
 @@ -831,6 +831,7 @@ windows_unicode
@@ -542,7 +532,7 @@ index b159afee80..51acfafe92 100755
  then :
    CMX_MAGIC_NUMBER=Caml1999y037
 diff --git a/configure.ac b/configure.ac
-index 167629fbbf..88a95c3bbe 100644
+index a92274bf43..61bda3752a 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -279,6 +279,7 @@ AC_SUBST([reserved_header_bits])

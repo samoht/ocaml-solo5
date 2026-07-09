@@ -1,7 +1,7 @@
-From e4dbf608b08d03e7af71e123ddddf9ad576e4092 Mon Sep 17 00:00:00 2001
+From 3bf151678f524f65a96d0e2173735e37243b5082 Mon Sep 17 00:00:00 2001
 From: Thomas Gazagnaire <thomas@gazagnaire.org>
-Date: Wed, 8 Jul 2026 23:51:53 -0700
-Subject: [PATCH 4/4] Makefile.cross: keep -function-sections off the host .opt
+Date: Wed, 8 Jul 2026 23:43:23 -0700
+Subject: [PATCH 7/7] Makefile.cross: keep -function-sections off the host .opt
  tools
 
 crossopt builds ocamlc.opt/ocamlopt.opt and the *.opt tools with the host
@@ -19,10 +19,10 @@ function sections (and can be garbage-collected by the linker).
  1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/Makefile.cross b/Makefile.cross
-index cf069212ea..a33ad8f28d 100644
+index b0a21c3d7c..af7e0d5b21 100644
 --- a/Makefile.cross
 +++ b/Makefile.cross
-@@ -89,11 +89,15 @@ endif
+@@ -76,11 +76,15 @@ endif
  	$(MAKE) dynlink-all $(CROSS_OVERRIDES) $(OLDS)
  	$(MAKE) -C otherlibs all $(CROSS_OVERRIDES) $(OLDS)
  	$(MAKE) runtimeopt $(OLDS)
