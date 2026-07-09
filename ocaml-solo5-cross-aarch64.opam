@@ -12,7 +12,9 @@ build: [
    "--sysroot=%{_:lib}%"
    "--target=aarch64-solo5-none-static"
    "--ocaml-configure-option=--disable-flat-float-array" {ocaml-option-no-flat-float-array:installed}
-   "--ocaml-configure-option=--enable-flambda" {ocaml-option-flambda:installed}
+   # -use-lto needs every .cmx built here to carry its flambda code.
+   "--ocaml-configure-option=--enable-flambda"
+   "--ocaml-configure-option=--enable-lto"
    "--othertoolprefix=llvm-" {os = "macos"}
    "--path-prepend=/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/lld/bin:" {os = "macos"}
   ]
@@ -24,7 +26,6 @@ install: [
 ]
 depopts: [
   "ocaml-option-no-flat-float-array"
-  "ocaml-option-flambda"
 ]
 run-test: [
   [make "test"]

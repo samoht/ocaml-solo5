@@ -12,7 +12,9 @@ build: [
    "--target=x86_64-solo5-none-static" { arch = "x86_64" }
    "--target=aarch64-solo5-none-static" { arch = "arm64" }
    "--ocaml-configure-option=--disable-flat-float-array" {ocaml-option-no-flat-float-array:installed}
-   "--ocaml-configure-option=--enable-flambda" {ocaml-option-flambda:installed}
+   # -use-lto needs every .cmx built here to carry its flambda code.
+   "--ocaml-configure-option=--enable-flambda"
+   "--ocaml-configure-option=--enable-lto"
   ]
   [make "-j%{jobs}%"]
   [make "%{name}%.install"]
@@ -22,7 +24,6 @@ install: [
 ]
 depopts: [
   "ocaml-option-no-flat-float-array"
-  "ocaml-option-flambda"
 ]
 run-test: [
   [make "test"]
