@@ -1,6 +1,6 @@
-From 96c30cbacb441f962e0ca67cf42b3ab492846b90 Mon Sep 17 00:00:00 2001
+From 47498a984fe809fd22b9f6dfe9af919de768cb3f Mon Sep 17 00:00:00 2001
 From: t <t@t>
-Date: Thu, 9 Jul 2026 10:28:41 -0700
+Date: Thu, 9 Jul 2026 11:13:26 -0700
 Subject: [PATCH] flambda: refine the effects of a few C primitives
 
 ---
