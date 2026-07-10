@@ -15,6 +15,7 @@ build: [
    # -use-lto needs every .cmx built here to carry its flambda code.
    "--ocaml-configure-option=--enable-flambda"
    "--ocaml-configure-option=--enable-lto"
+   "--ocaml-configure-option=--disable-cfi"
   ]
   [make "-j%{jobs}%"]
   [make "%{name}%.install"]

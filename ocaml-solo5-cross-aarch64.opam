@@ -15,6 +15,7 @@ build: [
    # -use-lto needs every .cmx built here to carry its flambda code.
    "--ocaml-configure-option=--enable-flambda"
    "--ocaml-configure-option=--enable-lto"
+   "--ocaml-configure-option=--disable-cfi"
    "--othertoolprefix=llvm-" {os = "macos"}
    "--path-prepend=/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/lld/bin:" {os = "macos"}
   ]
