@@ -1,5 +1,5 @@
 From 9639efb41430912ffc51120295cdfcbe5a89d6e1 Mon Sep 17 00:00:00 2001
-From: t <t@t>
+From: Thomas Gazagnaire <thomas@gazagnaire.org>
 Date: Thu, 9 Jul 2026 11:13:27 -0700
 Subject: [PATCH] Add whole-program dead code elimination for flambda
  (-use-lto)
