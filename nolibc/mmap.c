@@ -67,7 +67,7 @@ int munmap(void *addr, size_t length)
   /* man page for munmap says:
    * The address addr must be a multiple of the page size (but length need not be).
    */
-  if ((uintptr_t)addr & OCAML_SOLO5_PAGESIZE != 0) {
+  if (((uintptr_t)addr & (OCAML_SOLO5_PAGESIZE - 1)) != 0) {
     errno = EINVAL;
     return -1;
   }
