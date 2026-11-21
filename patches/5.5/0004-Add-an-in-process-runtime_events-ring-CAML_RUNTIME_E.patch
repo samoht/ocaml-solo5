@@ -8,8 +8,8 @@ Subject: [PATCH] Add an in-process runtime_events ring
  .../runtime_events/runtime_events_consumer.c  | 35 ++++++--
  runtime/caml/runtime_events.h                 |  5 ++
  runtime/runtime_events.c                      | 87 ++++++++++++++++---
- .../lib-runtime-events/test_inprocess.ml      | 25 ++++++
- 4 files changed, 130 insertions(+), 22 deletions(-)
+ .../lib-runtime-events/test_inprocess.ml      | 27 ++++++
+ 4 files changed, 132 insertions(+), 22 deletions(-)
  create mode 100644 testsuite/tests/lib-runtime-events/test_inprocess.ml
 
 diff --git a/otherlibs/runtime_events/runtime_events_consumer.c b/otherlibs/runtime_events/runtime_events_consumer.c
@@ -248,10 +248,10 @@ index b3c2964c60..74335df5b9 100644
      ring_data_length =
 diff --git a/testsuite/tests/lib-runtime-events/test_inprocess.ml b/testsuite/tests/lib-runtime-events/test_inprocess.ml
 new file mode 100644
-index 0000000000..2d25c4dc73
+index 0000000000..c69b43d24e
 --- /dev/null
 +++ b/testsuite/tests/lib-runtime-events/test_inprocess.ml
-@@ -0,0 +1,25 @@
+@@ -0,0 +1,27 @@
 +(* TEST
 + include runtime_events;
 + set OCAML_RUNTIME_EVENTS_INPROCESS = "1";
@@ -273,6 +273,8 @@ index 0000000000..2d25c4dc73
 +  let callbacks = Runtime_events.Callbacks.create ~lifecycle () in
 +  let _ = Runtime_events.read_poll cursor callbacks None in
 +  assert !got_start;
++  (* the ring is not a file, so it has no path *)
++  assert (Runtime_events.path () = None);
 +  (* no <pid>.events backing file should exist for the in-process ring *)
 +  Array.iter
 +    (fun f -> assert (not (Filename.check_suffix f ".events")))
