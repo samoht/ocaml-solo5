@@ -175,6 +175,7 @@ all: $(LIBS) $(OCAML_IS_BUILT) \
 
 .PHONY: test
 test:
+	./test_solo5_conf.sh
 	$(MAKE) -C nolibc test-headers \
 	    "CC=$(MAKECONF_TOOLCHAIN)-cc" \
 	    "FREESTANDING_CFLAGS=$(NOLIBC_CFLAGS)"
