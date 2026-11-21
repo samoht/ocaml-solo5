@@ -5,11 +5,11 @@ Subject: [PATCH] Add an in-process runtime_events ring
  (CAML_RUNTIME_EVENTS_INPROCESS)
 
 ---
- .../runtime_events/runtime_events_consumer.c  | 35 ++++++--
- runtime/caml/runtime_events.h                 |  5 ++
- runtime/runtime_events.c                      | 87 ++++++++++++++++---
+ .../runtime_events/runtime_events_consumer.c  | 35 +++++--
+ runtime/caml/runtime_events.h                 |  5 +
+ runtime/runtime_events.c                      | 94 +++++++++++++++----
  .../lib-runtime-events/test_inprocess.ml      | 27 ++++++
- 4 files changed, 132 insertions(+), 22 deletions(-)
+ 4 files changed, 137 insertions(+), 24 deletions(-)
  create mode 100644 testsuite/tests/lib-runtime-events/test_inprocess.ml
 
 diff --git a/otherlibs/runtime_events/runtime_events_consumer.c b/otherlibs/runtime_events/runtime_events_consumer.c
@@ -91,7 +91,7 @@ index a230171eaa..d3c1aa4c3f 100644
     internal to the runtime, except for caml_ev_lifecycle which is needed in
     otherlibs/unix/fork.c so must be declared CAMLextern in order to work on
 diff --git a/runtime/runtime_events.c b/runtime/runtime_events.c
-index b3c2964c60..74335df5b9 100644
+index b3c2964c60..3b79f6d7e8 100644
 --- a/runtime/runtime_events.c
 +++ b/runtime/runtime_events.c
 @@ -88,9 +88,22 @@ typedef enum { EV_RUNTIME, EV_USER } ev_category;
@@ -180,7 +180,18 @@ index b3c2964c60..74335df5b9 100644
  }
  
  void caml_runtime_events_post_fork(void) {
-@@ -239,13 +285,29 @@ static void runtime_events_create_from_stw_single(void) {
+@@ -206,7 +252,9 @@ void caml_runtime_events_post_fork(void) {
+    read the ring buffers of the current process. Always returns a
+    freshly-allocated string. */
+ char_os* caml_runtime_events_current_location(void) {
+-  if( atomic_load_acquire(&runtime_events_enabled) ) {
++  /* the in-process ring is not a file: it has no location */
++  if( atomic_load_acquire(&runtime_events_enabled)
++      && !runtime_events_inprocess ) {
+     return caml_stat_strdup_noexc_os(current_ring_loc);
+   } else {
+     return NULL;
+@@ -239,13 +287,29 @@ static void runtime_events_create_from_stw_single(void) {
    /* Don't initialise runtime_events twice */
    if (!atomic_load_acquire(&runtime_events_enabled)) {
      int ring_headers_length, ring_data_length;
@@ -213,7 +224,7 @@ index b3c2964c60..74335df5b9 100644
      current_ring_loc = caml_stat_alloc(RUNTIME_EVENTS_MAX_MSG_LENGTH);
  
      if (runtime_events_path) {
-@@ -256,13 +318,6 @@ static void runtime_events_create_from_stw_single(void) {
+@@ -256,13 +320,6 @@ static void runtime_events_create_from_stw_single(void) {
                    T("%ld.events"), pid);
      }
  
@@ -227,7 +238,7 @@ index b3c2964c60..74335df5b9 100644
  #ifdef _WIN32
      ring_file_handle = CreateFile(
        current_ring_loc,
-@@ -310,6 +365,8 @@ static void runtime_events_create_from_stw_single(void) {
+@@ -310,6 +367,8 @@ static void runtime_events_create_from_stw_single(void) {
        caml_fatal_error("failed to map view of file");
      }
  #else
@@ -236,7 +247,7 @@ index b3c2964c60..74335df5b9 100644
      ring_fd =
          open(current_ring_loc, O_RDWR | O_CREAT, (S_IRUSR | S_IWUSR));
  
-@@ -335,7 +392,9 @@ static void runtime_events_create_from_stw_single(void) {
+@@ -335,7 +394,9 @@ static void runtime_events_create_from_stw_single(void) {
      }
  
      close(ring_fd);
@@ -246,6 +257,16 @@ index b3c2964c60..74335df5b9 100644
      ring_headers_length =
          caml_params->max_domains * sizeof(struct runtime_events_buffer_header);
      ring_data_length =
+@@ -487,7 +548,8 @@ CAMLprim value caml_ml_runtime_events_path(value vunit) {
+   CAMLparam0();
+   CAMLlocal2 (res, str);
+   res = Val_none;
+-  if (atomic_load_acquire(&runtime_events_enabled)) {
++  if (atomic_load_acquire(&runtime_events_enabled)
++      && !runtime_events_inprocess) {
+     /* The allocation might GC, which could allow another domain to
+      * nuke current_ring_loc, so we snapshot it first. */
+     char_os *current_ring_loc_str = caml_stat_strdup_os(current_ring_loc);
 diff --git a/testsuite/tests/lib-runtime-events/test_inprocess.ml b/testsuite/tests/lib-runtime-events/test_inprocess.ml
 new file mode 100644
 index 0000000000..c69b43d24e
